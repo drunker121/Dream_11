@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import SignUpPage from './components/SignUpPage';
 import LoginPage from './components/LoginPage';
 import Home from './components/Home';
+import Success from './components/Success';
 // import AddStudent from './components/dbPages/AddStudent';
 // import AddTeacher from './components/dbPages/AddTeacher';
 // import StudentDB from './components/dbPages/StudentDB';
@@ -20,6 +21,7 @@ const App = () => {
           <Route path='/home' element={<Home/>} />
           <Route path='/login' element={<LoginPage/>} />
           <Route path='/register' element={<SignUpPage/>} />
+          <Route path='/Success' element={<Success/>} />
           {/* <Route path='/students' element={<StudentDB/>} />
           <Route path='/teachers' element={<TeacherDB/>} />
           <Route path='/add_teacher' element={<AddTeacher/>} />

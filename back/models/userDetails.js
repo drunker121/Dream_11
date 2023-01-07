@@ -9,9 +9,84 @@ const userdetails = new mongoose.Schema({
 },
 {
     collection: 'usersinfo',
+});
+
+const condetails = new mongoose.Schema({
+    type: String,
+    matchid: String,
+    tourid: String,
+    gametype: String,
+    contestselection: String,
+    EntrySP: String,
+    EntryEP: String,
+    team: String,
+    amount: String,
+    slot: String,
+    noofcontest: String,
+    refresh: String,
+},
+{
+   collection: 'matchinfo',
+});
+
+// const studentdetails = new mongoose.Schema({
+//     type: String,
+//     name:String,
+//     fname:String,
+//     roll: String,
+//     phnum: String,
+//     classs: String,
+//     addresss: String,
+// },
+// {
+//     collection: 'studentinfo',
+// }
+// )
+
+// const teacherdetails = new mongoose.Schema({
+//     type: String,
+//     name:String,
+//     subject: String,
+//     classs: String,
+//     ph: String,
+//     addresss: String,
+// },
+// {
+//     collection: 'teacherinfo',
+// }
+// )
 
 
-    // name: {
+mongoose.model('usersinfo', userdetails);
+mongoose.model('matchinfo', condetails)
+// mongoose.model("usersinfo", userdetails);
+// mongoose.model('studentinfo', studentdetails);
+// mongoose.model('teacherinfo', teacherdetails);
+// module.exports = users;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// name: {
     //     type: String,
     //     required: true
     // },
@@ -85,38 +160,3 @@ const userdetails = new mongoose.Schema({
 //     type: Number,
 //     required: true,
 //   },
-});
-
-// const studentdetails = new mongoose.Schema({
-//     type: String,
-//     name:String,
-//     fname:String,
-//     roll: String,
-//     phnum: String,
-//     classs: String,
-//     addresss: String,
-// },
-// {
-//     collection: 'studentinfo',
-// }
-// )
-
-// const teacherdetails = new mongoose.Schema({
-//     type: String,
-//     name:String,
-//     subject: String,
-//     classs: String,
-//     ph: String,
-//     addresss: String,
-// },
-// {
-//     collection: 'teacherinfo',
-// }
-// )
-
-
-mongoose.model('usersinfo', userdetails);
-// mongoose.model("usersinfo", userdetails);
-// mongoose.model('studentinfo', studentdetails);
-// mongoose.model('teacherinfo', teacherdetails);
-// module.exports = users;

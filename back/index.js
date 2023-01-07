@@ -17,6 +17,7 @@ app.listen(PORT, ()=> {
 require('./models/userDetails');
 
 const User = mongoose.model('usersinfo');
+const Match = mongoose.model('matchinfo');
 // const Student = mongoose.model('studentinfo');
 // const Teacher = mongoose.model('teacherinfo');
 
@@ -65,10 +66,47 @@ app.post('/login', (req, res) => {
     })
 })
 
-app.post('/home' , (req, res) => {
+app.post('/home' , async (req, res) => {
     const {matchid, tourid, gametype, contestselection, EntrySP, EntryEP, team, amount, slot, noofcontest, refresh } = req.body;
+    try {
+     await Match.create ({
+        type: "contest",
+        matchid,
+        tourid,
+        gametype,
+        contestselection,
+        EntrySP,
+        EntryEP,
+        team,
+        amount,
+        slot,
+        noofcontest,
+        refresh,
+    });
+    res.send({status: 'contest added'});
+} catch (error) {
+    res.send({status: 'something went wrong'})
+}
 
 })
+
+// app.post('/add_teacher', async (req, res) => {
+//     const {name, subject, classs, ph, addresss} = req.body;
+//     try {
+//         await Teacher.create({
+
+//             type: "teacher",
+//             name,
+//             subject,
+//             classs,
+//             ph,
+//             addresss,
+//         });
+//         res.send({status: 'teacher added'});
+//     } catch (error) {
+//         res.send({status: 'something wrong occured'});
+//     }
+// })
 
 
 
