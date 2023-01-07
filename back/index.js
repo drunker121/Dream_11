@@ -24,6 +24,8 @@ app.get("/",(req,res)=>{
     res.json({message:`successfully running on port  ${PORT}`});
 })
 
+
+
 app.post('/register', (req, res) => {
     const {name, email, password} = req.body;
     User.findOne({email: email}, async (error, user) => {
@@ -65,7 +67,7 @@ app.post('/login', (req, res) => {
 
 app.post('/home' , (req, res) => {
     const {matchid, tourid, gametype, contestselection, EntrySP, EntryEP, team, amount, slot, noofcontest, refresh } = req.body;
-    
+
 })
 
 

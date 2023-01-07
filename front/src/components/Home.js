@@ -1,6 +1,17 @@
-import React from "react";
+import React, {useState} from "react";
+
+
+
 
 const Home = () => {
+  const [user, setUser] = useState({
+    
+  })
+  const handleChange = () => {
+
+  }
+
+
   return (
     <section className="bg-black">
       <div className="px-6 mx-auto  pt-6">
@@ -23,6 +34,7 @@ const Home = () => {
               <label
                 for="matchid"
                 className="block mt-10 mb-2 text-sm font-medium text-white text-center"
+                onChange={handleChange}
               >
                 Match ID:
               </label>
@@ -41,6 +53,7 @@ const Home = () => {
               <label
                 for="tourid"
                 className="block mt-3 mb-2 text-sm font-medium text-white text-center"
+                onChange={handleChange}
               >
                 Tour ID:
               </label>
