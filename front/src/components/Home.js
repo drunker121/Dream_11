@@ -37,7 +37,6 @@ const Home = () => {
     e.preventDefault();
     axios.post('http://localhost:5000/home', condetails)
     .then(res => {
-      res
       console.log("hello bhai")
         alert(res.data.status)
         navigate('/Success');

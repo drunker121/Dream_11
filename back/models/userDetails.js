@@ -6,6 +6,7 @@ const userdetails = new mongoose.Schema({
     name:String,
     email:String,
     password:String,
+    confirmPassword: String,
 },
 {
     collection: 'usersinfo',
@@ -29,39 +30,20 @@ const condetails = new mongoose.Schema({
    collection: 'matchinfo',
 });
 
-// const studentdetails = new mongoose.Schema({
-//     type: String,
-//     name:String,
-//     fname:String,
-//     roll: String,
-//     phnum: String,
-//     classs: String,
-//     addresss: String,
-// },
-// {
-//     collection: 'studentinfo',
-// }
-// )
 
-// const teacherdetails = new mongoose.Schema({
-//     type: String,
-//     name:String,
-//     subject: String,
-//     classs: String,
-//     ph: String,
-//     addresss: String,
-// },
-// {
-//     collection: 'teacherinfo',
-// }
-// )
+ // hashing the password
 
+// userdetails.pre('create' , async function (next) {
+//     console.log("hi from bcrypt");
+//     if (this.isModified('password')){
+//         this.password = await bcrypt.hash(this.password , 12);
+//         this.confirmPassword = await bcrypt.hash(this.confirmPassword, 12);
+//     }
+//     next();
+// });
 
 mongoose.model('usersinfo', userdetails);
-mongoose.model('matchinfo', condetails)
-// mongoose.model("usersinfo", userdetails);
-// mongoose.model('studentinfo', studentdetails);
-// mongoose.model('teacherinfo', teacherdetails);
+mongoose.model('matchinfo', condetails);
 // module.exports = users;
 
 

@@ -4,6 +4,8 @@ const cors  = require('cors');
 const PORT=process.env.PORT||5000
 const app = express();
 
+const bcrypt = require('bcryptjs');
+
 app.use(express.json());
 app.use(cors());
 
@@ -28,18 +30,21 @@ app.get("/",(req,res)=>{
 
 
 app.post('/register', (req, res) => {
-    const {name, email, password} = req.body;
+    const {name, email, password, confirmPassword} = req.body;
     User.findOne({email: email}, async (error, user) => {
         if(user) {
             res.send({status: 'user already exist'});
         }
         else {
             try {
+                const hashedPassword = await bcrypt.hash(req.body.password,10);
+                const hashedcPassword = await bcrypt.hash(req.body.confirmPassword,10);
                 await User.create({
                     type: "user",
                     name,
                     email,
-                    password,
+                    password: hashedPassword,
+                    confirmPassword: hashedcPassword,
                 });
                 res.send({status: 'registered successfully'});
             } catch (error) {
@@ -49,11 +54,14 @@ app.post('/register', (req, res) => {
     })
 })
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
     const {email, password} = req.body;
     User.findOne({email: email}, (err, user) => {
         if(user) {
-            if(password === user.password) {
+
+            const isMatch = bcrypt.compare(password, user.password);
+
+            if(isMatch) {
                 res.send({status: 'login successful', user: user});
             }
             else {
@@ -130,16 +138,6 @@ app.post('/home' , async (req, res) => {
 //     }
 // })
 
-// app.delete('/teacher/:id', async (req, res) => {
-    
-//     try {
-//         await Teacher.deleteOne({_id: req.params.id});
-//         res.send({status: 'teacher deleted'});
-//     } catch (error) {
-//         console.log('error while deleting teacher', error);
-//     }
-// })
-
 // app.delete('/student/:id', async (req, res) => {
 //     try {
 //         await Student.deleteOne({_id: req.params.id});
@@ -158,14 +156,5 @@ app.post('/home' , async (req, res) => {
 //     } catch (error) {
 //         console.log('error');
 //         res.status(404).json({message: 'student not found'});
-//     }
-// })
-
-// app.get('/teachers', async (req, res) => {
-//     try {
-//         const dt = await Teacher.find({});
-//         res.status(200).json(dt);
-//     } catch (error) {
-//         res.status(404).json({message: 'teacher not found'});
 //     }
 // })
