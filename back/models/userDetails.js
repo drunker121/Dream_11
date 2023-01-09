@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const jwt = require('jsonwebtoken');
 
 const userdetails = new mongoose.Schema({
 
@@ -29,6 +30,19 @@ const condetails = new mongoose.Schema({
 {
    collection: 'matchinfo',
 });
+
+
+// userdetails.methods.generateAutoToken = async function() {
+//     try{
+//         let token = jwt.sign({_id: this._id} , process.env.SECRETKEY);
+//         this.tokens = this.tokens.concat({token:token});
+//         await this.save();
+//         return token;
+//     }
+//     catch (err){
+//         console.log(err);
+//     }
+// }
 
 
  // hashing the password

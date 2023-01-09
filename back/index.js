@@ -1,102 +1,150 @@
-const express = require('express');
-const mongoose  = require('mongoose');
-const cors  = require('cors');
-const PORT=process.env.PORT||5000
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const PORT = process.env.PORT || 5000;
 const app = express();
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+dotenv.config({ path: "./config.env" });
+const RefreshModel = require("./models/refreshToken");
 
-const bcrypt = require('bcryptjs');
+const JWT_ACCESS_TOKEN = process.env.JWT_ACCESS_TOKEN;
+const JWT_REFRESH_TOKEN = process.env.JWT_REFRESH_TOKEN;
 
 app.use(express.json());
-app.use(cors());
+app.use(cookieParser());
+app.use(
+  cors({
+    withCredentials: true,
+  })
+);
 
-const mongodb=require('./mongodb')
+const mongodb = require("./mongodb");
+// const refreshToken = require('./models/refreshToken');
 mongodb();
 
-app.listen(PORT, ()=> {
-    console.log(`hello from port ${PORT}` );
-})
+app.listen(PORT, () => {
+  console.log(`hello from port ${PORT}`);
+});
 
-require('./models/userDetails');
+require("./models/userDetails");
 
-const User = mongoose.model('usersinfo');
-const Match = mongoose.model('matchinfo');
-// const Student = mongoose.model('studentinfo');
-// const Teacher = mongoose.model('teacherinfo');
+const User = mongoose.model("usersinfo");
+const Match = mongoose.model("matchinfo");
 
-app.get("/",(req,res)=>{
-    res.json({message:`successfully running on port  ${PORT}`});
-})
+app.get("/", (req, res) => {
+  res.json({ message: `successfully running on port  ${PORT}` });
+});
 
+app.post("/register", (req, res) => {
+  const { name, email, password, confirmPassword } = req.body;
+  User.findOne({ email: email }, async (error, user) => {
+    if (user) {
+      res.send({ status: "user already exist" });
+    } else {
+      try {
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        const hashedcPassword = await bcrypt.hash(req.body.confirmPassword, 10);
+        await User.create({
+          type: "user",
+          name,
+          email,
+          password: hashedPassword,
+          confirmPassword: hashedcPassword,
+        });
+        res.send({ status: "registered successfully" });
+      } catch (error) {
+        res.send({ status: "something wrong occured" });
+      }
+    }
+  });
+});
 
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  User.findOne({ email: email }, (err, user) => {
+    if (user) {
+      // let token;
+      const isMatch = bcrypt.compare(password, user.password);
 
-app.post('/register', (req, res) => {
-    const {name, email, password, confirmPassword} = req.body;
-    User.findOne({email: email}, async (error, user) => {
-        if(user) {
-            res.send({status: 'user already exist'});
-        }
-        else {
-            try {
-                const hashedPassword = await bcrypt.hash(req.body.password,10);
-                const hashedcPassword = await bcrypt.hash(req.body.confirmPassword,10);
-                await User.create({
-                    type: "user",
-                    name,
-                    email,
-                    password: hashedPassword,
-                    confirmPassword: hashedcPassword,
-                });
-                res.send({status: 'registered successfully'});
-            } catch (error) {
-                res.send({status: 'something wrong occured'});
-            }
-        }
-    })
-})
+      if (isMatch) {
+        const accessToken = jwt.sign(
+          { name: user.name, email: user.email, _id: user._id },
+          JWT_ACCESS_TOKEN,
+          { expiresIn: 30000 }
+        );
+        const refreshToken = jwt.sign(
+          { name: user.name, email: user.email, _id: user._id },
+          JWT_REFRESH_TOKEN,
+          { expiresIn: 30000 }
+        );
+        RefreshModel.create({ token: refreshToken }).then((result, error) => {
+          if (error) return res.send({ status: "incorrect password" });
+        });
+        // res.cookie("jwtoken" , token , {
+        //     expires: new Date(Date.now() + 25892000000),
+        //     httpOnly: true
+        // });
 
-app.post('/login', async (req, res) => {
-    const {email, password} = req.body;
-    User.findOne({email: email}, (err, user) => {
-        if(user) {
+        res
+          .status(202)
+          .cookie("accessToken", accessToken, {
+            expiresIn: new Date(new Date().getTime() + 30000),
+            sameSite: "strict",
+            httpOnly: true,
+          })
+          .cookie("refreshToken", accessToken, {
+            expiresIn: new Date(new Date().getTime() + 30000),
+            sameSite: "strict",
+            httpOnly: true,
+          })
+          .send({ status: "login successful", user: user });
+      } else {
+        res.send({ status: "incorrect password" });
+      }
+    } else {
+      res.send({ status: "user not found" });
+    }
+  });
+});
 
-            const isMatch = bcrypt.compare(password, user.password);
-
-            if(isMatch) {
-                res.send({status: 'login successful', user: user});
-            }
-            else {
-                res.send({status: 'incorrect password'});
-            }
-        }
-        else {
-            res.send({status: 'user not found'});
-        }
-    })
-})
-
-app.post('/home' , async (req, res) => {
-    const {matchid, tourid, gametype, contestselection, EntrySP, EntryEP, team, amount, slot, noofcontest, refresh } = req.body;
-    try {
-     await Match.create ({
-        type: "contest",
-        matchid,
-        tourid,
-        gametype,
-        contestselection,
-        EntrySP,
-        EntryEP,
-        team,
-        amount,
-        slot,
-        noofcontest,
-        refresh,
+app.post("/home", async (req, res) => {
+  const {
+    matchid,
+    tourid,
+    gametype,
+    contestselection,
+    EntrySP,
+    EntryEP,
+    team,
+    amount,
+    slot,
+    noofcontest,
+    refresh,
+  } = req.body;
+  try {
+    await Match.create({
+      type: "contest",
+      matchid,
+      tourid,
+      gametype,
+      contestselection,
+      EntrySP,
+      EntryEP,
+      team,
+      amount,
+      slot,
+      noofcontest,
+      refresh,
     });
-    res.send({status: 'contest added'});
-} catch (error) {
-    res.send({status: 'something went wrong'})
-}
-
-})
+    res.send({ status: "contest added" });
+  } catch (error) {
+    res.send({ status: "something went wrong" });
+  }
+});
 
 // app.post('/add_teacher', async (req, res) => {
 //     const {name, subject, classs, ph, addresss} = req.body;
@@ -115,8 +163,6 @@ app.post('/home' , async (req, res) => {
 //         res.send({status: 'something wrong occured'});
 //     }
 // })
-
-
 
 // app.get('/student/edit/:id', async (req, res) => {
 //     const {id} = req.params;
@@ -146,7 +192,6 @@ app.post('/home' , async (req, res) => {
 //         console.log('error while deleting student', error);
 //     }
 // })
-
 
 // app.get('/students', async (req, res) => {
 //     try {
